@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>md-steppers</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.css">
+    <!-- material-steppers style sheet -->
+    <link rel="stylesheet" href="material-steppers.min.css">
+</head>
+
+<body ng-app="SteppersApp" ng-cloak>
+
+    <md-switch ng-model="vertical" aria-label="Vertical">
+        Vertical
+    </md-switch>
+
+
+    <md-stepper vertical="vertical" mobile-step-text="true">
+        <md-step label="Create your store" continue-label="Create">
+            <h2>Setup Your Store</h2>
+            <form>
+                <md-input-container>
+                    <label>Domain</label>
+                    <input type="text" />
+                </md-input-container>
+                <md-input-container>
+                    <label>Store Name</label>
+                    <input type="text" />
+                </md-input-container>
+            </form>
+        </md-step>
+        <md-step label="Add contact information" continue-label="Add Info" md-step-optional md-step-editable>
+            <h2>Contact Details</h2>
+            <form>
+                <md-input-container>
+                    <label>Phone</label>
+                    <input type="text" />
+                </md-input-container>
+                <md-input-container>
+                    <label>Email</label>
+                    <input type="text" />
+                </md-input-container>
+            </form>
+        </md-step>
+        <md-step label="Enter street address" skip-label="Not Interested" md-step-optional>
+            <h2>Store Location</h2>
+            <form>
+                <md-input-container>
+                    <label>Street</label>
+                    <input type="text" />
+                </md-input-container>
+                <md-input-container>
+                    <label>City</label>
+                    <input type="text" />
+                </md-input-container>
+                <md-input-container>
+                    <label>State</label>
+                    <input type="text" />
+                </md-input-container>
+            </form>
+        </md-step>
+        <md-step label="Add billing information">
+            <h2>Setup Monthly Subscription</h2>
+            <form>
+                <md-input-container>
+                    <label>Name</label>
+                    <input type="text" />
+                </md-input-container>
+                <md-input-container>
+                    <label>Card</label>
+                    <input type="text" />
+                </md-input-container>
+                <md-input-container>
+                    <label>Expiration</label>
+                    <input type="text" />
+                </md-input-container>
+            </form>
+        </md-step>
+        <md-step label="Terms &amp; conditions" continue-label="I agree">
+            <h2>End User Agreement</h2>
+            <form>
+                <p>
+                    By submitting this form you consent that you will abide by the example terms and conditions of this demo!
+                </p>
+            </form>
+        </md-step>
+    </md-stepper>
+
+
+
+
+    <!-- Angular Material requires Angular.js Libraries -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-messages.min.js"></script>
+
+    <!-- Angular Material Library -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0-rc2/angular-material.min.js"></script>
+
+    <!-- material-steppers Library -->
+    <script src="material-steppers.min.js"></script>
+
+
+    <!-- Application bootstrap  -->
+    <script type="text/javascript">
+        angular.module('SteppersApp', ['ngMaterial', 'mdSteppers']);
+    </script>
+</body>
+
+</html>
