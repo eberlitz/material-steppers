@@ -46,6 +46,24 @@ angular.module('app', ['ngMaterial', 'mdSteppers']);
 </md-stepper>
 ```
 
+
+# TODO
+
+- [DOING] Horizontal steppers
+- [TODO] Vertical steppers
+- [TODO] Linear steppers
+- [TODO] Non-linear steppers
+- [TODO] Alternative labels
+- [TODO] Optional steps
+- [TODO] Editable steps
+- [TODO] Stepper feedback
+- Mobile steppers
+    - [DOING] Mobile step text
+    - [TODO] Mobile step dots
+    - [TODO] Mobile step progress bar
+
+
+
 ## License
 
 The MIT License (MIT)

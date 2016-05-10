@@ -19,9 +19,6 @@ md-stepper .vertical md-step .step-content {
   border-left: 1px solid #e0e0e0;
 }
 
-.mobile-step .step-actions {
-  display:none;
-}
 
 .step-header .line {
   margin-right: 8px;
@@ -30,19 +27,10 @@ md-stepper .vertical md-step .step-content {
   background-color: #e0e0e0;
 }
 
-.step-circle {
-  background-color: #9b9b9b;
-}
 
-.step-header.active .step-circle {
-  background-color: #3f51b5;
-}
-
-.step-circle.done {
-  background-color: #3f51b5;
-}
 
 .step-circle {
+    background-color: #9b9b9b;
   width: 24px;
   height: 24px;
   line-height: 24px;
@@ -50,4 +38,48 @@ md-stepper .vertical md-step .step-content {
   color: #fff;
   font-size: 12px;
   text-align: center;
+  &.done {
+       background-color: #3f51b5;
+    }
+}
+
+.step-header.active .step-circle {
+  background-color: #3f51b5;
+}
+
+
+md-stepper {
+    > div {
+        display: block;
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+        height: 100%;
+    }
+    .steps-wrapper {
+        overflow: auto;
+    }
+    .step-bar {
+        display: none;
+    }
+    
+    .mobile-step.horizontal {
+        .step-bar {
+            @media (max-width: 599px) {
+                display: flex;
+            }
+            
+        }
+        
+        @media (max-width: 599px) {
+            //display: none;
+            .step-header-bar {
+                display: none;
+            }
+            .step-actions {
+                display:none;
+            }
+
+        }
+    }
 }
