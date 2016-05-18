@@ -1,0 +1,24 @@
+<div ng-class="{'vertical':stepper.vertical,'horizontal':!stepper.vertical,'mobile-step': stepper.mobileStepText }" layout="column">
+    <md-toolbar flex="none" class="step-bar md-whiteframe-1dp" style="background: #f6f6f6 !important; color: #202020 !important;">
+        <div class="md-toolbar-tools">
+            <h3>
+                <span>Step {{stepper.currentStep+1}} of {{stepper.steps.length}}</span>
+            </h3>
+        </div>
+    </md-toolbar>
+    <div flex="none" ng-hide="stepper.vertical" layout="row" class="step-header-bar">
+        <div class="step-header" ng-repeat="step in stepper.steps" md-ink-ripple layout="row" flex layout-align="center center" ng-class="{'flex-none':$last, 'active':step.active}"
+            ng-click="stepper.setActiveStep(step)">
+            <div class="step-circle" flex-none>{{$index+1}}</div>
+            <span class="label" flex-none>{{step.label}}</span>
+            <div class="line" flex></div>
+        </div>
+    </div>
+    <div class="steps-wrapper" flex ng-transclude></div>
+    <div flex="none" class="md-whiteframe-1dp step-bar" style="background: #f6f6f6 !important; color: #202020 !important;" layout="row"
+        layout-align="space-around">
+        <md-button ng-click="stepper.previousStep()">Back</md-button>
+        <span flex></span>
+        <md-button ng-click="stepper.nextStep()">Next</md-button>
+    </div>
+</div>

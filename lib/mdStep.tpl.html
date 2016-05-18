@@ -1,0 +1,15 @@
+<div>
+    <div class="step-header" md-ink-ripple layout="row" ng-class="{'flex-none':$last, 'active':active}">
+        <div class="step-circle"></div>
+        <span class="label">{{label}}</span>
+    </div>
+    <div class="step-content" ng-show="active">
+        <div ng-transclude></div>
+        <div class="step-actions" layout="row">
+            <md-button class="md-raised md-primary" ng-click="nextStep()">Continue</md-button>
+            <md-button class="md-raised">Reset</md-button>
+            <span flex></span>
+            <md-button class="md-raised">Skip</md-button>
+        </div>
+    </div>
+</div>
