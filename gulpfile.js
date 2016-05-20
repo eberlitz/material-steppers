@@ -29,10 +29,11 @@ gulp.task('templates', function () {
             root: 'mdSteppers',
             module: 'mdSteppers'
         }))
-        .pipe(gulp.dest(production ? 'dist' : 'demo'));
+        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('demo'));
 });
 
-gulp.task('serve', function (callback) {
+gulp.task('serve', ['build'], function (callback) {
     production = false;
     browserSync.init({
         server: {
@@ -65,15 +66,14 @@ gulp.task('css', function (callback) {
                 'bb >= 10'
             ]
         })]))
-        .pipe(gulp.dest('dist'));
-
-    if (production) {
-        stream = stream.pipe(postcss([cssnano({
+        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('demo'))
+        .pipe(rename({ extname: '.min.css' }))
+        .pipe(gulp.dest('demo'))
+        .pipe(postcss([cssnano({
             discardComments: { removeAll: true }
-        })]));
-    }
-    stream = stream.pipe(rename({ extname: '.min.css' }))
-        .pipe(gulp.dest(production ? 'dist' : 'demo'));
+        })]))
+        .pipe(gulp.dest('dist'));
     return stream;
 });
 
@@ -81,15 +81,13 @@ gulp.task('css', function (callback) {
 gulp.task('js', ['templates'], function (callback) {
     var stream = gulp.src('lib/*.ts')
         .pipe(ts(tsProject))
-        .pipe(gulp.dest(production ? 'dist' : 'demo'))
+        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('demo'));
 
-    stream = orderedMergeStream([stream, gulp.src((production ? 'dist' : 'demo') + '/*-tpl.js')])
-        .pipe(concat('material-steppers.js'));
-
-    if (production) {
-        stream = stream.pipe(uglify())
-    }
-    stream = stream.pipe(rename({ extname: '.min.js' }))
-        .pipe(gulp.dest(production ? 'dist' : 'demo'));
-    return stream;
+    return orderedMergeStream([stream, gulp.src('dist/*-tpl.js')])
+        .pipe(concat('material-steppers.js'))
+        .pipe(rename({ extname: '.min.js' }))
+        .pipe(gulp.dest('demo'))
+        .pipe(uglify())
+        .pipe(gulp.dest('dist'));
 });

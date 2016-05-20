@@ -1,4 +1,4 @@
-# material-steppers [Still in development]
+# material-steppers
 
 Angular Steppers directive for Angular Material
 
@@ -8,21 +8,19 @@ Based on Material Steppers: https://www.google.com/design/spec/components/steppe
 
 https://eberlitz.github.io/material-steppers/demo
 
-
 ## Usage
 
 ###  using bower
 
 ```shell
-bower install md-steppers --save
+bower install material-steppers --save
 ```
 
 ### or using npm
 
 ```shell
-npm install md-steppers --save
+npm install material-steppers --save
 ```
-
 
 ### Add to your module
 
@@ -33,15 +31,19 @@ angular.module('app', ['ngMaterial', 'mdSteppers']);
 ### Write your html
 
 ```html      
-<md-stepper vertical="false">
-    <md-step label="Step 1">
-        <md-content></md-content>
-    </md-step>
-    <md-step label="Step 2">
-        <md-content></md-content>
-    </md-step>
-    <md-step label="Finish">
-        <md-content></md-content>
+<md-stepper id="stepper-demo" 
+    md-mobile-step-text="vm.isMobileStepText" 
+    md-vertical="vm.isVertical" 
+    md-linear="vm.isLinear"
+    md-alternative="vm.isAlternative">
+    <md-step md-label="Select a campaign">
+        <md-step-body>
+            <p>...</p>
+        </md-step-body>
+        <md-step-actions>
+            <md-button class="md-primary md-raised" ng-click="vm.selectCampaign();">Continue</md-button>
+            <md-button class="md-primary" ng-click="vm.cancel();">Cancel</md-button>
+        </md-step-actions>
     </md-step>
 </md-stepper>
 ```
@@ -49,18 +51,24 @@ angular.module('app', ['ngMaterial', 'mdSteppers']);
 
 # TODO
 
-- [DOING] Horizontal steppers
-- [TODO] Vertical steppers
-- [TODO] Linear steppers
-- [TODO] Non-linear steppers
-- [TODO] Alternative labels
-- [TODO] Optional steps
+- [DONE] Horizontal steppers
+- [DONE] Vertical steppers
+- [DONE] Linear steppers
+- [DONE] Non-linear steppers
+- [DONE] Alternative labels
+- [DONE] Optional steps
 - [TODO] Editable steps
-- [TODO] Stepper feedback
+- [DONE] Stepper feedback
 - Mobile steppers
-    - [DOING] Mobile step text
+    - [DONE] Mobile step text
     - [TODO] Mobile step dots
     - [TODO] Mobile step progress bar
+- [TODO] Correct apply styles (css) of the material design
+- [TODO] Embed SVG assets
+
+
+# `$mdStepper` Service
+
 
 
 

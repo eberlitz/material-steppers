@@ -1,63 +1,254 @@
-class Stepper {
+class StepperCtrl {
+
+
+    public static $inject = [
+        '$mdComponentRegistry',
+        '$attrs',
+        '$log'
+    ];
+
+    /* Bindings */
+
+    public linear: boolean;
+    public alternative: boolean;
+    public vertical: boolean;
+    public mobileStepText: boolean;
+
+    /* End of bindings */
 
     public steps = [];
     public currentStep = 0;
 
-    constructor() {
-        this.steps;
+    private hasFeedback: boolean;
+    private feedbackMessage: string;
+    private registeredStepper;
+
+    constructor(
+        private $mdComponentRegistry,
+        private $attrs,
+        private $log
+    ) { }
+
+    $postLink() {
+        if (!this.$attrs.id) {
+            this.$log.warn('You must set an id attribute to your stepper');
+        }
+        this.$mdComponentRegistry.register(this, this.$attrs.id);
     }
 
-    getActiveStep() {
-        return this.steps.filter((step) => step.active)[0];
+    $onDestroy() {
+        this.registeredStepper && this.registeredStepper();
     }
 
-    setActiveStep(step) {
-        this.steps.forEach((_step, index) => {
-            _step.active = false;
-            if (_step === step) {
-                this.currentStep = index;
-            }
-        });
-        step.active = true;
+    /**
+     * Register component step to this stepper.
+     * 
+     * @param {StepCtrl} step The step to add.
+     * @returns number - The step number.
+     */
+    $addStep(step: StepCtrl) {
+        return this.steps.push(step) - 1;
     }
-    nextStep() {
-        let activeStep = this.getActiveStep();
-        let nextStep = this.steps[this.steps.indexOf(activeStep) + 1];
-        if (nextStep) {
-            activeStep.active = false;
-            nextStep.active = true;
+
+    /**
+     * Complete the current step and move one to the next. 
+     * Using this method on editable steps (in linear stepper) 
+     * it will search by the next step without "completed" state to move. 
+     * When invoked it dispatch the event onstepcomplete to the step element.
+     * 
+     * @returns boolean - True if move and false if not move (e.g. On the last step)
+     */
+    public next() {
+        if (this.currentStep < this.steps.length) {
+            this.clearError();
             this.currentStep++;
+            this.clearFeedback();
+            return true;
         }
+        return false;
     }
-    previousStep() {
-        let activeStep = this.getActiveStep();
-        let previousStep = this.steps[this.steps.indexOf(activeStep) - 1];
-        if (previousStep) {
-            activeStep.active = false;
-            previousStep.active = true;
+
+    /**
+     * Move to the previous step without change the state of current step. 
+     * Using this method in linear stepper it will check if previous step is editable to move.
+     * 
+     * @returns boolean - True if move and false if not move (e.g. On the first step)
+     */
+    public back() {
+        if (this.currentStep > 0) {
+            this.clearError();
             this.currentStep--;
+            this.clearFeedback();
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Move to the next step without change the state of current step. 
+     * This method works only in optional steps.
+     * 
+     * @returns boolean - True if move and false if not move (e.g. On non-optional step)
+     */
+    public skip() {
+        let step = this.steps[this.currentStep];
+        if (step.optional) {
+            this.currentStep++;
+            this.clearFeedback();
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Defines the current step state to "error" and shows the message parameter on 
+     * title message element.When invoked it dispatch the event onsteperror to the step element.
+     * 
+     * @param {string} message The error message
+     */
+    public error(message: string) {
+        let step = this.steps[this.currentStep];
+        step.hasError = true;
+        step.message = message;
+        this.clearFeedback();
+    }
+
+    /**
+     * Defines the current step state to "normal" and removes the message parameter on 
+     * title message element.
+     */
+    public clearError() {
+        let step = this.steps[this.currentStep];
+        step.hasError = false;
+    }
+
+    /**
+     * Move "active" to specified step id parameter. 
+     * The id used as reference is the integer number shown on the label of each step (e.g. 2).
+     * 
+     * @param {number} stepNumber (description)
+     * @returns boolean - True if move and false if not move (e.g. On id not found)
+     */
+    public goto(stepNumber: number) {
+        if (stepNumber < this.steps.length) {
+            this.currentStep = stepNumber;
+            this.clearFeedback();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Shows a feedback message and a loading indicador.
+     * 
+     * @param {string} [message] The feedbackMessage
+     */
+    public showFeedback(message?: string) {
+        this.hasFeedback = true;
+        this.feedbackMessage = message;
+    }
+
+    /**
+     * Removes the feedback.
+     */
+    public clearFeedback() {
+        this.hasFeedback = false;
+    }
+
+
+    isCompleted(stepNumber: number) {
+        return this.linear && stepNumber < this.currentStep;
     };
 
-    addStep(step) {
-        if (this.steps.length === 0) {
-            this.setActiveStep(step);
-        }
-        this.steps.push(step);
+    isActiveStep(step: StepCtrl) {
+        return this.steps.indexOf(step) === this.currentStep;
+    }
+}
+
+interface StepperService {
+    (handle: string): StepperCtrl;
+}
+
+let StepperServiceFactory = ['$mdComponentRegistry',
+    function ($mdComponentRegistry) {
+        return <StepperService>function (handle: string) {
+            let instance: StepperCtrl = $mdComponentRegistry.get(handle);
+
+            if (!instance) {
+                $mdComponentRegistry.notFoundError(handle);
+            }
+
+            return instance;
+        };
+    }];
+
+
+class StepCtrl {
+
+    public static $inject = [
+        '$element',
+        '$compile',
+        '$scope'
+    ];
+
+    /* Bindings */
+
+    public label: string;
+    public optional: string;
+
+    /* End of bindings */
+
+    public stepNumber: number;
+
+    public $stepper: StepperCtrl;
+
+    /**
+     *
+     */
+    constructor(
+        private $element,
+        private $compile: ng.ICompileService,
+        private $scope: ng.IScope
+    ) { }
+
+    $postLink() {
+        this.stepNumber = this.$stepper.$addStep(this);
+    }
+
+    isActive() {
+        let state = this.$stepper.isActiveStep(this);
+        return state;
     }
 }
 
 angular.module('mdSteppers', ['ngMaterial'])
+    .factory('$mdStepper', StepperServiceFactory)
+    .directive('mdStepBody', ['$compile', ($compile) => {
+        return {
+            link: function preLink(scope, iElement) {
+                let overlay = angular.element(`
+                        <div class="md-step-body-overlay"></div>
+                        <div class="md-step-body-loading">
+                            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                        </div>
+                    `);
+                $compile(overlay)(scope);
+                iElement.append(overlay);
+            }
+        };
+    }])
     .directive('mdStepper', () => {
         return {
-            restrict: 'E',
             transclude: true,
             scope: {
-                vertical: '=',
-                mobileStepText: '@'
+                linear: '<?mdLinear',
+                alternative: '<?mdAlternative',
+                vertical: '<?mdVertical',
+                mobileStepText: '<?mdMobileStepText'
             },
-            controller: Stepper,
             bindToController: true,
+            controller: StepperCtrl,
             controllerAs: 'stepper',
             templateUrl: 'mdSteppers/mdStepper.tpl.html'
         };
@@ -65,20 +256,16 @@ angular.module('mdSteppers', ['ngMaterial'])
     .directive('mdStep', () => {
         return {
             require: '^^mdStepper',
-            restrict: 'E',
             transclude: true,
             scope: {
-                label: '@',
-                next: '&onNext'
+                label: '@mdLabel',
+                optional: '@?mdOptional'
             },
-            link: function (scope, element, attrs, mdStepper: Stepper) {
-                mdStepper.addStep(scope);
-                scope.nextStep = function () {
-                    var isValid = scope.next();
-                    if (isValid) {
-                        mdStepper.nextStep();
-                    }
-                };
+            bindToController: true,
+            controller: StepCtrl,
+            controllerAs: '$ctrl',
+            link: (scope: any, iElement, iAttrs, stepperCtrl: StepperCtrl) => {
+                scope.$ctrl.$stepper = stepperCtrl;
             },
             templateUrl: 'mdSteppers/mdStep.tpl.html'
         };
