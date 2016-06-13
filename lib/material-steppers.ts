@@ -1,6 +1,5 @@
 class StepperCtrl {
 
-
     public static $inject = [
         '$mdComponentRegistry',
         '$attrs',
@@ -13,6 +12,8 @@ class StepperCtrl {
     public alternative: boolean;
     public vertical: boolean;
     public mobileStepText: boolean;
+    public labelStep: string = 'Step';
+    public labelOf: string = 'of';
 
     /* End of bindings */
 
@@ -29,11 +30,24 @@ class StepperCtrl {
         private $log
     ) { }
 
+
+    $onInit() {
+        if (this.$attrs.mdMobileStepText === '') {
+            this.mobileStepText = true;
+        }
+        if (this.$attrs.mdLinear === '') {
+            this.linear = true;
+        }
+        if (this.$attrs.mdAlternative === '') {
+            this.alternative = true;
+        }
+    }
+
     $postLink() {
         if (!this.$attrs.id) {
             this.$log.warn('You must set an id attribute to your stepper');
         }
-        this.$mdComponentRegistry.register(this, this.$attrs.id);
+        this.registeredStepper = this.$mdComponentRegistry.register(this, this.$attrs.id);
     }
 
     $onDestroy() {
@@ -224,20 +238,6 @@ class StepCtrl {
 
 angular.module('mdSteppers', ['ngMaterial'])
     .factory('$mdStepper', StepperServiceFactory)
-    .directive('mdStepBody', ['$compile', ($compile) => {
-        return {
-            link: function preLink(scope, iElement) {
-                let overlay = angular.element(`
-                        <div class="md-step-body-overlay"></div>
-                        <div class="md-step-body-loading">
-                            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-                        </div>
-                    `);
-                $compile(overlay)(scope);
-                iElement.append(overlay);
-            }
-        };
-    }])
     .directive('mdStepper', () => {
         return {
             transclude: true,
@@ -245,15 +245,20 @@ angular.module('mdSteppers', ['ngMaterial'])
                 linear: '<?mdLinear',
                 alternative: '<?mdAlternative',
                 vertical: '<?mdVertical',
-                mobileStepText: '<?mdMobileStepText'
+                mobileStepText: '<?mdMobileStepText',
+                labelStep: '@?mdLabelStep',
+                labelOf: '@?mdLabelOf'
             },
             bindToController: true,
             controller: StepperCtrl,
             controllerAs: 'stepper',
             templateUrl: 'mdSteppers/mdStepper.tpl.html'
+            // link: function (scope, element, attrs) {
+            //     scope.stepper.mobileStepText = !!attrs.$attr['mdMobileStepText'];
+            // }
         };
     })
-    .directive('mdStep', () => {
+    .directive('mdStep', ['$compile', ($compile) => {
         return {
             require: '^^mdStepper',
             transclude: true,
@@ -264,9 +269,33 @@ angular.module('mdSteppers', ['ngMaterial'])
             bindToController: true,
             controller: StepCtrl,
             controllerAs: '$ctrl',
-            link: (scope: any, iElement, iAttrs, stepperCtrl: StepperCtrl) => {
+            link: (scope: any, iElement: ng.IRootElementService, iAttrs, stepperCtrl: StepperCtrl) => {
+                function addOverlay() {
+                    let hasOverlay = !!iElement.find('.md-step-body-overlay')[0];
+                    if (!hasOverlay) {
+                        let overlay = angular.element(`
+                            <div class="md-step-body-overlay"></div>
+                            <div class="md-step-body-loading">
+                                <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                            </div>
+                        `);
+                        $compile(overlay)(scope);
+                        iElement.find('.md-steppers-scope').append(overlay);
+                    }
+                }
+
                 scope.$ctrl.$stepper = stepperCtrl;
+                scope.$watch(function () {
+                    return scope.$ctrl.isActive();
+                }, function (isActive) {
+                    if (isActive) {
+                        iElement.addClass('md-active');
+                        addOverlay();
+                    } else {
+                        iElement.removeClass('md-active');
+                    }
+                });
             },
             templateUrl: 'mdSteppers/mdStep.tpl.html'
         };
-    });
+    }]);

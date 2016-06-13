@@ -1,3 +1,76 @@
+md-stepper {
+  display: block;
+}
+md-steppers-header,
+md-steppers-mobile-header,
+md-step-actions {
+  -webkit-flex: 0 0 auto;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+  box-sizing: border-box;
+}
+.md-steppers-header-region {
+  z-index: 1;
+}
+@media (max-width: 599px) {
+  md-stepper {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+            flex-direction: row;
+  }
+  md-stepper > div {
+    min-width: 0px;
+    -webkit-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+  }
+  .md-steppers-content {
+    min-height: 0px;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  md-step.md-active {
+    min-height: 0px;
+    -webkit-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+  }
+  md-step.md-active .md-stepper {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+    min-height: 0px;
+  }
+  md-steppers-scope {
+    -webkit-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+  }
+  md-step-body {
+    -webkit-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+  }
+}
 .md-steppers {
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -25,6 +98,9 @@
       -ms-flex-flow: row nowrap;
           flex-flow: row nowrap;
   border-radius: 0;
+  -webkit-align-items: flex-start;
+      -ms-flex-align: start;
+          align-items: flex-start;
 }
 .md-steppers-horizontal .md-stepper-indicator {
   min-height: 72px;
@@ -168,16 +244,11 @@
 }
 .md-steppers-content {
   position: relative;
-  overflow: hidden;
   -webkit-flex: 1;
       -ms-flex: 1;
           flex: 1;
 }
-md-stepper {
-  display: block;
-}
 .md-stepper {
-  padding: 24px;
   box-sizing: border-box;
 }
 .md-stepper.md-active {
@@ -260,7 +331,7 @@ md-stepper {
 }
 .md-steppers-alternative .md-steppers-horizontal .md-stepper-indicator-wrapper {
   padding: 0 16px;
-  min-height: 72px;
+  min-height: 50px;
   -webkit-flex-flow: column nowrap;
       -ms-flex-flow: column nowrap;
           flex-flow: column nowrap;
@@ -319,9 +390,6 @@ md-stepper {
   .md-steppers-mobile-step-text:not(.md-steppers-vertical) .md-stepper {
     padding: 0;
   }
-  .md-steppers-mobile-step-text:not(.md-steppers-vertical) md-step-body {
-    padding: 24px;
-  }
   .md-steppers-mobile-step-text:not(.md-steppers-vertical) .md-steppers-mobile-header {
     display: block;
   }
@@ -350,7 +418,7 @@ md-stepper {
     box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 3px 0px, rgba(0, 0, 0, 0.137255) 0px 1px 1px 0px, rgba(0, 0, 0, 0.117647) 0px 2px 1px -1px;
   }
 }
-.md-steppers-header {
+.md-steppers-header-region {
   position: relative;
 }
 .md-stepper-feedback-message {
@@ -368,12 +436,21 @@ md-stepper {
   display: flex;
   padding-left: 10px;
   z-index: 2;
+  box-sizing: border-box;
 }
 .md-steppers {
   position: relative;
 }
 md-step-body {
   position: relative;
+  padding: 24px;
+  overflow: auto;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 .md-step-body-loading {
   display: none;

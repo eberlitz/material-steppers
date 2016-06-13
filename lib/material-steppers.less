@@ -16,6 +16,64 @@
 @swift-linear-timing-function: linear;
 @swift-linear: all @swift-linear-duration @swift-linear-timing-function;
 
+md-stepper {
+  display: block;
+}
+
+
+
+md-steppers-header,md-steppers-mobile-header, md-step-actions {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+}
+
+
+.md-steppers-header-region{
+  z-index: 1;
+}
+
+
+@media (max-width: 599px) {
+  md-stepper {
+    display: flex;
+    flex-direction: row;
+    > div {
+      min-width: 0px;
+      flex:1;
+    }
+  }
+  .md-steppers-content {
+    min-height: 0px;
+    display: flex;
+    flex-direction: column;
+  }
+  md-step.md-active {
+    min-height: 0px;
+    flex:1;
+    display: flex;
+    flex-direction: column;
+    .md-stepper {
+      display: flex;
+      flex-direction: column;
+      flex:1;
+      min-height: 0px;
+    }
+  }
+
+
+  md-steppers-scope {
+    flex:1;
+  }
+  md-step-body {
+    flex:1;
+  }
+}
+
+
+
+
+
+
 .md-steppers {
   display: flex;
   flex-flow: column;
@@ -40,6 +98,7 @@
   display: flex;
   flex-flow: row nowrap;
   border-radius: 0;
+  align-items: flex-start;
 }
 
 .md-steppers-horizontal {
@@ -209,16 +268,15 @@
 
 .md-steppers-content {
   position: relative;
-  overflow: hidden;
+  //overflow: hidden;
   flex: 1;
 }
 
-md-stepper {
-  display: block;
-}
+// md-stepper {
+//   display: block;
+// }
 
 .md-stepper {
-  padding: 24px;
   box-sizing: border-box;
   //position: absolute;
   // top: 0;
@@ -350,7 +408,7 @@ md-stepper {
 
     .md-stepper-indicator-wrapper {
       padding: 0 16px;
-      min-height: 72px;
+      min-height: 50px;
       flex-flow: column nowrap;
       background: none;
     }
@@ -437,9 +495,9 @@ md-stepper {
     .md-stepper {
       padding: 0;
     }
-    md-step-body {
-      padding: 24px;
-    }
+    // md-step-body {
+    //   padding: 24px;
+    // }
     
     
     .md-steppers-mobile-header {
@@ -467,7 +525,7 @@ md-stepper {
 // ------------------------------------------------
 // Feedback
 
-.md-steppers-header {
+.md-steppers-header-region {
   position: relative;
 }
 
@@ -482,6 +540,7 @@ md-stepper {
   display: flex;
   padding-left: 10px;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 .md-steppers {
@@ -489,6 +548,10 @@ md-stepper {
 }
 md-step-body{
   position: relative;
+  padding: 24px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
 }
 .md-step-body-loading {
   display: none;
