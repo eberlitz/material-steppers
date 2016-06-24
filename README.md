@@ -96,6 +96,7 @@ Detailed service operations bellow:
     - [ ] Mobile step progress bar
 - [x] Correct apply styles (css) of the material design
 - [x] Embed SVG Icon assets
+- [ ] Create a better demo page with all options.
 
 ## License
 

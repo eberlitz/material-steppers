@@ -484,7 +484,7 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
 
 // ------------------------------------------------
 // MOBILE-STEP-TEXT
-.md-steppers-mobile-header {
+.md-steppers-mobile-header,.md-stepper-feedback-message {
   display: none;
 }
 
@@ -502,6 +502,9 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
     
     .md-steppers-mobile-header {
       display: block;
+    }
+    .md-stepper-feedback-message{
+        display: flex;
     }
     
     .md-steppers-header.md-steppers-horizontal {
@@ -537,7 +540,7 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
   width: 100%;
   background-color: #fff;
   align-items: center;
-  display: flex;
+//   display: flex;
   padding-left: 10px;
   z-index: 2;
   box-sizing: border-box;
@@ -548,7 +551,7 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
 }
 md-step-body{
   position: relative;
-  padding: 24px;
+//   padding: 24px;
   overflow: auto;
   display: flex;
   flex-direction: column;
