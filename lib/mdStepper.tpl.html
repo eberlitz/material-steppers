@@ -16,11 +16,11 @@
             <div class="md-stepper-indicator-wrapper">
                 <div class="md-stepper-number" ng-hide="$step.hasError">
                     <span ng-if="!stepper.isCompleted(stepNumber)">{{ ::stepNumber+1 }}</span>
-                    <md-icon md-font-icon="fa-check" class="fa fa-1 md-stepper-icon" ng-if="stepper.isCompleted(stepNumber)"></md-icon>
+                    <md-icon md-svg-icon="steppers-check" class="md-stepper-icon" ng-if="stepper.isCompleted(stepNumber)"></md-icon>
                 </div>
 
                 <div class="md-stepper-error-indicator" ng-show="$step.hasError">
-                <md-icon md-font-icon="fa-warning" class="fa fa-2"></md-icon>
+                <md-icon md-svg-icon="steppers-warning"></md-icon>
                 </div>
                 <div class="md-stepper-title">
                     <span>{{ $step.label }}</span>

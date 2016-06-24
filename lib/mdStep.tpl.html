@@ -9,10 +9,10 @@
                 <div class="md-stepper-indicator-wrapper">
                     <div class="md-stepper-number" ng-hide="$ctrl.hasError">
                     <span ng-if="!$ctrl.$stepper.isCompleted($ctrl.stepNumber)">{{ ::$ctrl.stepNumber+1 }}</span>
-                    <md-icon md-font-icon="fa-check" class="fa fa-1 md-stepper-icon" ng-if="$ctrl.$stepper.isCompleted($ctrl.stepNumber)"></md-icon>
+                        <md-icon md-svg-icon="steppers-check" class="md-stepper-icon" ng-if="$ctrl.$stepper.isCompleted($ctrl.stepNumber)"></md-icon>
                     </div>
                     <div class="md-stepper-error-indicator" ng-show="$ctrl.hasError">
-                    <md-icon md-font-icon="fa-warning" class="fa fa-2"></md-icon>
+                        <md-icon md-svg-icon="steppers-warning"></md-icon>
                     </div>
 
                     <div class="md-stepper-title">

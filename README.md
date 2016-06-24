@@ -32,45 +32,70 @@ angular.module('app', ['ngMaterial', 'mdSteppers']);
 
 ```html      
 <md-stepper id="stepper-demo" 
-    md-mobile-step-text="vm.isMobileStepText" 
-    md-vertical="vm.isVertical" 
-    md-linear="vm.isLinear"
-    md-alternative="vm.isAlternative">
-    <md-step md-label="Select a campaign">
-        <md-step-body>
-            <p>...</p>
-        </md-step-body>
-        <md-step-actions>
-            <md-button class="md-primary md-raised" ng-click="vm.selectCampaign();">Continue</md-button>
-            <md-button class="md-primary" ng-click="vm.cancel();">Cancel</md-button>
-        </md-step-actions>
-    </md-step>
-</md-stepper>
+        md-mobile-step-text="$ctrl.isMobileStepText" 
+        md-vertical="$ctrl.isVertical" 
+        md-linear="$ctrl.isLinear"
+        md-alternative="$ctrl.isAlternative">
+        <md-step md-label="Select a campaign">
+            <md-step-body>
+                <p>Step content</p>
+            </md-step-body>
+            <md-step-actions>
+                <md-button class="md-primary md-raised" ng-click="$ctrl.selectCampaign();">Continue</md-button>
+                <md-button class="md-primary" ng-click="$ctrl.cancel();">Cancel</md-button>
+            </md-step-actions>
+        </md-step>
+        <md-step md-label="Create an group">
+            <md-step-body>
+                <p>Step content</p>
+            </md-step-body>
+            <md-step-actions>
+                <md-button class="md-primary md-raised" ng-click="$ctrl.nextStep();">Continue</md-button>
+                <md-button class="md-primary" ng-click="$ctrl.previousStep();">Back</md-button>
+            </md-step-actions>
+        </md-step>
+        <!-- Other steps if needed ... -->
+    </md-stepper>
 ```
 
+# $mdStepper Service
+
+Used to control a stepper by it's id. Example:
+
+```js
+ver steppers = $mdStepper('stepper-demo');
+steppers.next();
+```
+
+Detailed service operations bellow:
+
+| Method | Description | Returns |
+| --- | --- | --- |
+| `next()` | Complete the current step and move one to the next. Using this method on editable steps (in linear stepper) it will search by the next step without "completed" state to move. When invoked it dispatch the event onstepcomplete to the step element. | boolean - True if move and false if not move (e.g. On the last step) | 
+| `back()` | Move to the previous step without change the state of current step. Using this method in linear stepper it will check if previous step is editable to move. | boolean - True if move and false if not move (e.g. On the first step) |
+| `skip()` | Move to the next step without change the state of current step. This method works only in optional steps. | boolean - True if move and false if not move (e.g. On non-optional step) |
+| `goto(stepNumber: number)` | Move "active" to specified step id parameter. The id used as reference is the integer number shown on the label of each step (e.g. 2). | boolean - True if move and false if not move (e.g. On id not found) |
+| `error(message: string)` | Defines the current step state to "error" and shows the message parameter on title message element.When invoked it dispatch the event onsteperror to the step element. | {string} message The error message |
+| `clearError()` | Defines the current step state to "normal" and removes the message parameter on title message element. | void |
+| `showFeedback(message?: string)` | Shows a feedback message and a loading indicador. | void |
+| `clearFeedback()` | Removes the feedback. |  void |
 
 # TODO
 
-- [DONE] Horizontal steppers
-- [DONE] Vertical steppers
-- [DONE] Linear steppers
-- [DONE] Non-linear steppers
-- [DONE] Alternative labels
-- [DONE] Optional steps
-- [TODO] Editable steps
-- [DONE] Stepper feedback
+- [x] Horizontal steppers
+- [x] Vertical steppers
+- [x] Linear steppers
+- [x] Non-linear steppers
+- [x] Alternative labels
+- [x] Optional steps
+- [ ] Editable steps
+- [x] Stepper feedback
 - Mobile steppers
-    - [DONE] Mobile step text
-    - [TODO] Mobile step dots
-    - [TODO] Mobile step progress bar
-- [TODO] Correct apply styles (css) of the material design
-- [TODO] Embed SVG assets
-
-
-# `$mdStepper` Service
-
-
-
+    - [x] Mobile step text
+    - [ ] Mobile step dots
+    - [ ] Mobile step progress bar
+- [x] Correct apply styles (css) of the material design
+- [x] Embed SVG Icon assets
 
 ## License
 

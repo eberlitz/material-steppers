@@ -238,6 +238,7 @@ class StepCtrl {
 
 angular.module('mdSteppers', ['ngMaterial'])
     .factory('$mdStepper', StepperServiceFactory)
+
     .directive('mdStepper', () => {
         return {
             transclude: true,
@@ -298,4 +299,14 @@ angular.module('mdSteppers', ['ngMaterial'])
             },
             templateUrl: 'mdSteppers/mdStep.tpl.html'
         };
+    }])
+
+    .config(['$mdIconProvider', ($mdIconProvider) => {
+        $mdIconProvider.icon('steppers-check', 'mdSteppers/ic_check_24px.svg');
+        $mdIconProvider.icon('steppers-warning', 'mdSteppers/ic_warning_24px.svg');
+    }])
+    .run(["$templateCache", function ($templateCache) {
+        $templateCache.put("mdSteppers/ic_check_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/>\r\n</svg>");
+        $templateCache.put("mdSteppers/ic_warning_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z\"/>\r\n</svg>");
     }]);
+
