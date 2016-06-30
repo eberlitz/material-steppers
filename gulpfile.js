@@ -29,7 +29,7 @@ gulp.task('templates', function () {
             root: 'mdSteppers',
             module: 'mdSteppers'
         }))
-        .pipe(gulp.dest('dist'))
+        // .pipe(gulp.dest('dist'))
         .pipe(gulp.dest('demo'));
 });
 
@@ -84,8 +84,10 @@ gulp.task('js', ['templates'], function (callback) {
         .pipe(gulp.dest('dist'))
         .pipe(gulp.dest('demo'));
 
-    return orderedMergeStream([stream, gulp.src('dist/*-tpl.js')])
+    return orderedMergeStream([stream, gulp.src('demo/*-tpl.js')])
         .pipe(concat('material-steppers.js'))
+        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('demo'))
         .pipe(rename({ extname: '.min.js' }))
         .pipe(gulp.dest('demo'))
         .pipe(uglify())
