@@ -120,6 +120,7 @@ md-step-actions {
   content: " ";
 }
 .md-stepper-indicator {
+  margin: 0;
   padding: 0 16px;
   position: relative;
   display: -webkit-flex;
