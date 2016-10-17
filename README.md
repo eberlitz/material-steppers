@@ -98,6 +98,16 @@ Detailed service operations bellow:
 - [x] Embed SVG Icon assets
 - [ ] Create a better demo page with all options.
 
+## Remarks
+
+- Based on:
+ - [MDL Stepper](https://github.com/ahlechandre/mdl-stepper)
+ - [MD Steppers](https://github.com/ipiz/md-steppers)
+ - [Angular Material Steppers](https://github.com/marcosmoura/angular-material-steppers)
+
+- Thanks to all ;)
+
+
 ## License
 
 The MIT License (MIT)
