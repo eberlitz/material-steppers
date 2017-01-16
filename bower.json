@@ -1,6 +1,9 @@
 {
     "name": "material-steppers",
     "description": "Angular Steppers directive for Angular Material",
+    "dependencies": {
+        "angular": "*"
+    },
     "main": [
         "dist/material-steppers.js",
         "dist/material-steppers.css"
