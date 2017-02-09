@@ -6,46 +6,48 @@
     'md-steppers-has-feedback': stepper.hasFeedback
     }">
     <div class="md-steppers-header-region">
-        <md-steppers-header class="md-steppers-header md-steppers-horizontal md-whiteframe-1dp">
-            <button class="md-stepper-indicator" ng-repeat="(stepNumber, $step) in stepper.steps track by $index" ng-class="{
-                'md-active': stepNumber === stepper.currentStep,
-                'md-completed': stepper.isCompleted(stepNumber),
-                'md-error': $step.hasError,
-                'md-stepper-optional': $step.optional || $step.hasError
-            }" ng-click="stepper.goto(stepNumber)" ng-disabled="stepper.linear || stepNumber === stepper.currentStep">
-            <div class="md-stepper-indicator-wrapper">
-                <div class="md-stepper-number" ng-hide="$step.hasError">
-                    <span ng-if="!stepper.isCompleted(stepNumber)">{{ ::stepNumber+1 }}</span>
-                    <md-icon md-svg-icon="steppers-check" class="md-stepper-icon" ng-if="stepper.isCompleted(stepNumber)"></md-icon>
-                </div>
+        <div>
+            <md-steppers-header class="md-steppers-header md-steppers-horizontal md-whiteframe-1dp">
+                <button class="md-stepper-indicator" ng-repeat="(stepNumber, $step) in stepper.steps track by $index" ng-class="{
+                    'md-active': stepNumber === stepper.currentStep,
+                    'md-completed': stepper.isCompleted(stepNumber),
+                    'md-error': $step.hasError,
+                    'md-stepper-optional': $step.optional || $step.hasError
+                }" ng-click="stepper.goto(stepNumber)" ng-disabled="stepper.linear || stepNumber === stepper.currentStep">
+                <div class="md-stepper-indicator-wrapper">
+                    <div class="md-stepper-number" ng-hide="$step.hasError">
+                        <span ng-if="!stepper.isCompleted(stepNumber)">{{ ::stepNumber+1 }}</span>
+                        <md-icon md-svg-icon="steppers-check" class="md-stepper-icon" ng-if="stepper.isCompleted(stepNumber)"></md-icon>
+                    </div>
 
-                <div class="md-stepper-error-indicator" ng-show="$step.hasError">
-                <md-icon md-svg-icon="steppers-warning"></md-icon>
+                    <div class="md-stepper-error-indicator" ng-show="$step.hasError">
+                    <md-icon md-svg-icon="steppers-warning"></md-icon>
+                    </div>
+                    <div class="md-stepper-title">
+                        <span>{{ $step.label }}</span>
+                        <small ng-if="$step.optional && !$step.hasError">{{ $step.optional }}</small>
+                        <small class="md-stepper-error-message" ng-show="$step.hasError">
+                            {{ $step.message }}
+                        </small>
+                    </div>
                 </div>
-                <div class="md-stepper-title">
-                    <span>{{ $step.label }}</span>
-                    <small ng-if="$step.optional && !$step.hasError">{{ $step.optional }}</small>
-                    <small class="md-stepper-error-message" ng-show="$step.hasError">
-                        {{ $step.message }}
-                    </small>
-                </div>
+                </button>
+            
+            </md-steppers-header>
+            <md-steppers-mobile-header class="md-steppers-mobile-header">
+                <md-toolbar flex="none" class="md-whiteframe-1dp" style="background: #f6f6f6 !important; color: #202020 !important;">
+                    <div class="md-toolbar-tools">
+                        <h3>
+                            <span>{{stepper.labelStep}} {{stepper.currentStep+1}} {{stepper.labelOf}} {{stepper.steps.length}}</span>
+                        </h3>
+                    </div>
+                </md-toolbar>
+            </md-steppers-mobile-header>
+            <div class="md-stepper-feedback-message" ng-show="stepper.hasFeedback">
+                {{stepper.feedbackMessage}}
             </div>
-            </button>
-           
-        </md-steppers-header>
-        <md-steppers-mobile-header class="md-steppers-mobile-header">
-            <md-toolbar flex="none" class="md-whiteframe-1dp" style="background: #f6f6f6 !important; color: #202020 !important;">
-                <div class="md-toolbar-tools">
-                    <h3>
-                        <span>{{stepper.labelStep}} {{stepper.currentStep+1}} {{stepper.labelOf}} {{stepper.steps.length}}</span>
-                    </h3>
-                </div>
-            </md-toolbar>
-        </md-steppers-mobile-header>
-        <div class="md-stepper-feedback-message" ng-show="stepper.hasFeedback">
-            {{stepper.feedbackMessage}}
         </div>
+        <md-steppers-content class="md-steppers-content" ng-transclude></md-steppers-content>
+        <div class="md-steppers-overlay"></div>
     </div>
-    <md-steppers-content class="md-steppers-content" ng-transclude></md-steppers-content>
-    <div class="md-steppers-overlay"></div>
 </div>
