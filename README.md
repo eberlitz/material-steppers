@@ -22,6 +22,8 @@ bower install material-steppers --save
 npm install material-steppers --save
 ```
 
+**note**: works with angular 1.4.9
+
 ### Add to your module
 
 ```javascript
