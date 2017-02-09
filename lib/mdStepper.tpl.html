@@ -6,6 +6,7 @@
     'md-steppers-has-feedback': stepper.hasFeedback
     }">
     <div class="md-steppers-header-region">
+        <!-- This div needs to be here for IE 11, see PR #14 -->
         <div>
             <md-steppers-header class="md-steppers-header md-steppers-horizontal md-whiteframe-1dp">
                 <button class="md-stepper-indicator" ng-repeat="(stepNumber, $step) in stepper.steps track by $index" ng-class="{
