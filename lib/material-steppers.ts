@@ -274,12 +274,10 @@ angular.module('mdSteppers', ['ngMaterial'])
                 function addOverlay() {
                     let hasOverlay = !!iElement.find('.md-step-body-overlay')[0];
                     if (!hasOverlay) {
-                        let overlay = angular.element(`
-                            <div class="md-step-body-overlay"></div>
+                        let overlay = angular.element(`<div class="md-step-body-overlay"></div>
                             <div class="md-step-body-loading">
                                 <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-                            </div>
-                        `);
+                            </div>`);
                         $compile(overlay)(scope);
                         iElement.find('.md-steppers-scope').append(overlay);
                     }
