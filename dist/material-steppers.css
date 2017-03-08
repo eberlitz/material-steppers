@@ -437,7 +437,6 @@ md-step-actions {
   background-color: #fff;
   -webkit-align-items: center;
       -ms-flex-align: center;
-              -ms-grid-row-align: center;
           align-items: center;
   padding-left: 10px;
   z-index: 2;

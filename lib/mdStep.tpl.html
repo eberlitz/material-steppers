@@ -28,5 +28,5 @@
             {{stepper.feedbackMessage}}
         </div>
     </md-steppers-header>
-    <md-steppers-scope layout="column" class="md-steppers-scope" ng-if="$ctrl.isActive()" ng-transclude></md-steppers-scope>
+    <md-steppers-scope layout="column" class="md-steppers-scope" ng-show="$ctrl.isActive()" ng-transclude></md-steppers-scope>
 </div>
