@@ -7,6 +7,7 @@ var StepperDemoController = (function () {
         this.isAlternative = true;
         this.isMobileStepText = true;
         this.campaign = false;
+        this.user = {};
     }
     StepperDemoController.prototype.selectCampaign = function () {
         var _this = this;
