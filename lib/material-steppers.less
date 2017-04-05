@@ -562,13 +562,16 @@ md-step-body{
 }
 
 .md-steppers-has-feedback {
+  .md-stepper-feedback-message{
+    display: flex;
+  }
   .md-steppers-overlay{
     position:absolute;
     top:0;
     left:0;
     bottom: 0;
     width: 100%;
-    z-index: 99;
+    z-index: 10;
   }
   .md-step-body-overlay {
     position:absolute;
@@ -576,7 +579,7 @@ md-step-body{
     left:0;
     bottom: 0;
     width: 100%;
-    z-index: 90;
+    z-index: 11;
     opacity: 0.75;
     background-color: white;
   }
@@ -587,7 +590,7 @@ md-step-body{
     left:0;
     bottom: 0;
     width: 100%;
-    z-index: 91;
+    z-index: 12;
     flex-direction: column;
     box-sizing: border-box;
     align-items: center;

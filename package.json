@@ -1,6 +1,6 @@
 {
   "name": "material-steppers",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Angular Steppers directive for Angular Material",
   "main": "dist/material-steppers.min.js",
   "scripts": {
