@@ -3,7 +3,8 @@ class StepperCtrl {
     public static $inject = [
         '$mdComponentRegistry',
         '$attrs',
-        '$log'
+        '$log',
+        '$scope'
     ];
 
     /* Bindings */
@@ -27,7 +28,8 @@ class StepperCtrl {
     constructor(
         private $mdComponentRegistry,
         private $attrs,
-        private $log
+        private $log,
+        private $scope: ng.IScope
     ) { }
 
 
@@ -77,6 +79,7 @@ class StepperCtrl {
             this.clearError();
             this.currentStep++;
             this.clearFeedback();
+            this.$scope.$emit('onstepcomplete', this.currentStep);
             return true;
         }
         return false;
@@ -148,6 +151,7 @@ class StepperCtrl {
         if (stepNumber < this.steps.length) {
             this.currentStep = stepNumber;
             this.clearFeedback();
+            this.$scope.$emit('gotostepcomplete', this.currentStep);
             return true;
         }
         return false;
@@ -173,7 +177,7 @@ class StepperCtrl {
 
     isCompleted(stepNumber: number) {
         return this.linear && stepNumber < this.currentStep;
-    };
+    }
 
     isActiveStep(step: StepCtrl) {
         return this.steps.indexOf(step) === this.currentStep;
