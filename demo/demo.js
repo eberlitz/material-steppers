@@ -22,7 +22,7 @@ var StepperDemoController = (function () {
                 _this.campaign = !_this.campaign;
                 steppers.error('Wrong campaign');
             }
-        }, 3000);
+        }, 700);
     };
     StepperDemoController.prototype.previousStep = function () {
         var steppers = this.$mdStepper('stepper-demo');

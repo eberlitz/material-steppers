@@ -80,6 +80,7 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
 
   &:not(.md-steppers-linear) {
     .md-stepper-indicator {
+      &.md-hoverable:not(.md-active):hover,
       &:not(.md-active):not(.md-completed):hover,
       &.md-editable.md-completed:hover {
         cursor: pointer;
@@ -154,8 +155,7 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
     }
   }
 
-  &.md-active,
-  &.md-editable {
+  &.md-active {
     .md-stepper-title {
       font-weight: 500;
     }
@@ -328,7 +328,8 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
   .md-stepper-indicator {
     cursor: default;
 
-    &.md-editable.md-completed:hover {
+    &.md-hoverable:not(.md-active):hover,
+    &.md-editable.md-completed:not(.md-active):hover {
       cursor: pointer;
 
       &,
@@ -359,6 +360,7 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
 
 .md-steppers-alternative {
   &:not(.md-steppers-linear) {
+    .md-stepper-indicator.md-hoverable:not(.md-active):hover,
     .md-stepper-indicator:not(.md-active):not(.md-completed):hover {
       .md-stepper-indicator-wrapper {
         background: none;
@@ -479,6 +481,10 @@ md-steppers-header,md-steppers-mobile-header, md-step-actions {
   
   .md-steppers-header.md-steppers-horizontal {
     display: none;
+  }
+
+  .md-stepper-feedback-message {
+    display: none !important;
   }
 }
 
