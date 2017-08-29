@@ -96,6 +96,8 @@ class StepperCtrl {
         if (this.currentStepNumber > 0) {
             this.clearError();
             this.currentStepNumber--;
+            this.activeStepNumber = this.currentStepNumber;
+            this.currentStep.completed = false;
             this.clearFeedback();
             return true;
         }
