@@ -253,7 +253,7 @@ var StepperServiceFactory = ['$mdComponentRegistry',
             return instance;
         };
     }];
-angular.module('mdSteppers', ['ngMaterial'])
+angular.module('mdSteppers', ['material.components.icon'])
     .factory('$mdStepper', StepperServiceFactory)
     .directive('mdStepper', function () {
     return {
