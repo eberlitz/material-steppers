@@ -64,7 +64,11 @@ class StepperCtrl {
      * @returns number - The step number.
      */
     $addStep(step: StepCtrl) {
-        return this.steps.push(step) - 1;
+        let number = this.steps.push(step) - 1;
+        if (number === 0 && step.onActivate) {
+            step.onActivate();
+        }
+        return number;
     }
 
     /**
@@ -78,9 +82,11 @@ class StepperCtrl {
     public next() {
         if (this.currentStepNumber < this.steps.length) {
             this.completeStep();
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
             this.currentStepNumber++;
             this.activeStepNumber = this.currentStepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -95,10 +101,12 @@ class StepperCtrl {
     public back() {
         if (this.currentStepNumber > 0) {
             this.clearError();
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
             this.currentStepNumber--;
             this.activeStepNumber = this.currentStepNumber;
             this.currentStep.completed = false;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -112,8 +120,10 @@ class StepperCtrl {
      */
     public skip() {
         if (!this.linear || this.currentStep.optional) {
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
             this.currentStepNumber++;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -157,8 +167,10 @@ class StepperCtrl {
      */
     public goto(stepNumber: number) {
         if (0 <= stepNumber && stepNumber < this.steps.length) {
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
             this.currentStepNumber = stepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -204,6 +216,8 @@ class StepCtrl {
     public label   : string;
     public optional: string;
     public editable: boolean;
+    public onActivate;
+    public onDeactivate;
 
     /* End of bindings */
 
@@ -298,7 +312,9 @@ angular.module('mdSteppers', ['material.components.icon'])
             scope: {
                 label: '@mdLabel',
                 optional: '@?mdOptional',
-                editable: '<?mdEditable'
+                editable: '<?mdEditable',
+                onActivate: '&?onActivate',
+                onDeactivate: '&?onDeactivate',
             },
             bindToController: true,
             controller: StepCtrl,

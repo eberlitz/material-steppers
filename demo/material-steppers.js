@@ -42,7 +42,11 @@ var StepperCtrl = (function () {
      * @returns number - The step number.
      */
     StepperCtrl.prototype.$addStep = function (step) {
-        return this.steps.push(step) - 1;
+        var number = this.steps.push(step) - 1;
+        if (number === 0 && step.onActivate) {
+            step.onActivate();
+        }
+        return number;
     };
     /**
      * Complete the current step and move one to the next.
@@ -55,9 +59,15 @@ var StepperCtrl = (function () {
     StepperCtrl.prototype.next = function () {
         if (this.currentStepNumber < this.steps.length) {
             this.completeStep();
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
             this.currentStepNumber++;
             this.activeStepNumber = this.currentStepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -71,10 +81,16 @@ var StepperCtrl = (function () {
     StepperCtrl.prototype.back = function () {
         if (this.currentStepNumber > 0) {
             this.clearError();
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
             this.currentStepNumber--;
             this.activeStepNumber = this.currentStepNumber;
             this.currentStep.completed = false;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -87,8 +103,14 @@ var StepperCtrl = (function () {
      */
     StepperCtrl.prototype.skip = function () {
         if (!this.linear || this.currentStep.optional) {
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
             this.currentStepNumber++;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -127,8 +149,14 @@ var StepperCtrl = (function () {
      */
     StepperCtrl.prototype.goto = function (stepNumber) {
         if (0 <= stepNumber && stepNumber < this.steps.length) {
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
             this.currentStepNumber = stepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -281,7 +309,9 @@ angular.module('mdSteppers', ['material.components.icon'])
             scope: {
                 label: '@mdLabel',
                 optional: '@?mdOptional',
-                editable: '<?mdEditable'
+                editable: '<?mdEditable',
+                onActivate: '&?onActivate',
+                onDeactivate: '&?onDeactivate',
             },
             bindToController: true,
             controller: StepCtrl,

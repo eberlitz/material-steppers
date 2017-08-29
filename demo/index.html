@@ -31,7 +31,7 @@
 
     <md-stepper id="stepper-demo" md-mobile-step-text="vm.isMobileStepText" md-vertical="vm.isVertical" md-linear="vm.isLinear"
         md-alternative="vm.isAlternative">
-        <md-step md-label="Select a campaign" md-editable="true">
+        <md-step md-label="Select a campaign" md-editable="true" on-activate="vm.log('step 1 activate')" on-deactivate="vm.log('step 1 deactivate')">
             <md-step-body>
                 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur nobis saepe facere suscipit atque,
                     sapiente, natus mollitia ipsum odit accusamus repellendus deserunt. Odio sit similique, labore maxime

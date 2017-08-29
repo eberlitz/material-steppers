@@ -64,6 +64,9 @@ var StepperDemoController = (function () {
         var steppers = this.$mdStepper('stepper-demo');
         steppers.clearFeedback();
     };
+    StepperDemoController.prototype.log = function(message) {
+        console.log(message);
+    };
     StepperDemoController.$inject = [
         '$mdStepper',
         '$timeout'
