@@ -139,6 +139,9 @@ class StepperCtrl {
     }
 
     public completeStep() {
+        for (let stepNumber = this.currentStepNumber; stepNumber < this.steps.length; stepNumber++) {
+            this.steps[stepNumber].completed = false;
+        }
         this.currentStep.hasError = false;
         this.currentStep.completed = true;
     }
@@ -228,7 +231,6 @@ class StepCtrl {
     }
 
     $postLink() {
-        console.log(this);
         this.stepNumber = this.$stepper.$addStep(this);
     }
 

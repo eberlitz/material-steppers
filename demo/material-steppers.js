@@ -110,6 +110,9 @@ var StepperCtrl = (function () {
         this.currentStep.hasError = false;
     };
     StepperCtrl.prototype.completeStep = function () {
+        for (var stepNumber = this.currentStepNumber; stepNumber < this.steps.length; stepNumber++) {
+            this.steps[stepNumber].completed = false;
+        }
         this.currentStep.hasError = false;
         this.currentStep.completed = true;
     };
@@ -216,7 +219,6 @@ var StepCtrl = (function () {
         }
     };
     StepCtrl.prototype.$postLink = function () {
-        console.log(this);
         this.stepNumber = this.$stepper.$addStep(this);
     };
     Object.defineProperty(StepCtrl.prototype, "buttonClasses", {
