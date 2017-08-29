@@ -169,6 +169,9 @@ md-step-actions {
   -webkit-justify-content: flex-end;
       -ms-flex-pack: end;
           justify-content: flex-end;
+  -webkit-flex: 0 0 auto;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
 }
 .md-stepper-indicator:last-child .md-stepper-indicator-wrapper {
   padding-right: 24px;
