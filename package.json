@@ -4,7 +4,10 @@
   "description": "Angular Steppers directive for Angular Material",
   "main": "dist/material-steppers.min.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "gulp",
+    "build": "gulp build",
+    "start": "npm run serve"
   },
   "repository": {
     "type": "git",

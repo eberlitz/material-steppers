@@ -7,8 +7,14 @@ var StepperCtrl = (function () {
         this.labelOf = 'of';
         /* End of bindings */
         this.steps = [];
-        this.currentStep = 0;
+        this.currentStepNumber = 0;
+        this.activeStepNumber = 0;
     }
+    Object.defineProperty(StepperCtrl.prototype, "currentStep", {
+        get: function () { return this.steps[this.currentStepNumber]; },
+        enumerable: true,
+        configurable: true
+    });
     StepperCtrl.prototype.$onInit = function () {
         if (this.$attrs.mdMobileStepText === '') {
             this.mobileStepText = true;
@@ -36,7 +42,11 @@ var StepperCtrl = (function () {
      * @returns number - The step number.
      */
     StepperCtrl.prototype.$addStep = function (step) {
-        return this.steps.push(step) - 1;
+        var number = this.steps.push(step) - 1;
+        if (number === 0 && step.onActivate) {
+            step.onActivate();
+        }
+        return number;
     };
     /**
      * Complete the current step and move one to the next.
@@ -47,10 +57,17 @@ var StepperCtrl = (function () {
      * @returns boolean - True if move and false if not move (e.g. On the last step)
      */
     StepperCtrl.prototype.next = function () {
-        if (this.currentStep < this.steps.length) {
-            this.clearError();
-            this.currentStep++;
+        if (this.currentStepNumber < this.steps.length) {
+            this.completeStep();
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
+            this.currentStepNumber++;
+            this.activeStepNumber = this.currentStepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -62,10 +79,18 @@ var StepperCtrl = (function () {
      * @returns boolean - True if move and false if not move (e.g. On the first step)
      */
     StepperCtrl.prototype.back = function () {
-        if (this.currentStep > 0) {
+        if (this.currentStepNumber > 0) {
             this.clearError();
-            this.currentStep--;
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
+            this.currentStepNumber--;
+            this.activeStepNumber = this.currentStepNumber;
+            this.currentStep.completed = false;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -77,10 +102,15 @@ var StepperCtrl = (function () {
      * @returns boolean - True if move and false if not move (e.g. On non-optional step)
      */
     StepperCtrl.prototype.skip = function () {
-        var step = this.steps[this.currentStep];
-        if (step.optional) {
-            this.currentStep++;
+        if (!this.linear || this.currentStep.optional) {
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
+            this.currentStepNumber++;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -92,9 +122,8 @@ var StepperCtrl = (function () {
      * @param {string} message The error message
      */
     StepperCtrl.prototype.error = function (message) {
-        var step = this.steps[this.currentStep];
-        step.hasError = true;
-        step.message = message;
+        this.currentStep.hasError = true;
+        this.currentStep.message = message;
         this.clearFeedback();
     };
     /**
@@ -102,8 +131,14 @@ var StepperCtrl = (function () {
      * title message element.
      */
     StepperCtrl.prototype.clearError = function () {
-        var step = this.steps[this.currentStep];
-        step.hasError = false;
+        this.currentStep.hasError = false;
+    };
+    StepperCtrl.prototype.completeStep = function () {
+        for (var stepNumber = this.currentStepNumber; stepNumber < this.steps.length; stepNumber++) {
+            this.steps[stepNumber].completed = false;
+        }
+        this.currentStep.hasError = false;
+        this.currentStep.completed = true;
     };
     /**
      * Move "active" to specified step id parameter.
@@ -113,9 +148,15 @@ var StepperCtrl = (function () {
      * @returns boolean - True if move and false if not move (e.g. On id not found)
      */
     StepperCtrl.prototype.goto = function (stepNumber) {
-        if (stepNumber < this.steps.length) {
-            this.currentStep = stepNumber;
+        if (0 <= stepNumber && stepNumber < this.steps.length) {
+            if (this.currentStep.onDeactivate) {
+                this.currentStep.onDeactivate();
+            }
+            this.currentStepNumber = stepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) {
+                this.currentStep.onActivate();
+            }
             return true;
         }
         return false;
@@ -135,19 +176,102 @@ var StepperCtrl = (function () {
     StepperCtrl.prototype.clearFeedback = function () {
         this.hasFeedback = false;
     };
-    StepperCtrl.prototype.isCompleted = function (stepNumber) {
-        return this.linear && stepNumber < this.currentStep;
-    };
-    ;
-    StepperCtrl.prototype.isActiveStep = function (step) {
-        return this.steps.indexOf(step) === this.currentStep;
-    };
+    Object.defineProperty(StepperCtrl.prototype, "stepperClasses", {
+        get: function () {
+            return {
+                'md-steppers-linear': this.linear,
+                'md-steppers-alternative': this.alternative,
+                'md-steppers-vertical': this.vertical,
+                'md-steppers-mobile-step-text': this.mobileStepText,
+                'md-steppers-has-feedback': this.hasFeedback
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
     StepperCtrl.$inject = [
         '$mdComponentRegistry',
         '$attrs',
         '$log'
     ];
     return StepperCtrl;
+}());
+var StepCtrl = (function () {
+    function StepCtrl($attrs) {
+        this.$attrs = $attrs;
+        /* End of bindings */
+        this.completed = false;
+        this.hasError = false;
+    }
+    Object.defineProperty(StepCtrl.prototype, "isCurrent", {
+        get: function () { return this.stepNumber === this.$stepper.currentStepNumber; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "isDisabled", {
+        get: function () { return this.$stepper.linear && !(this.isCompleted && this.isEditable) && !this.isActive || (this.isCurrent && this.isActive); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "isCompleted", {
+        get: function () { return this.completed; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "isActive", {
+        get: function () { return this.stepNumber === this.$stepper.activeStepNumber; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "isEditable", {
+        get: function () { return this.editable; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "isEditing", {
+        get: function () { return this.isCompleted && this.isEditable && this.isCurrent; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "isBetweenAC", {
+        get: function () { return this.$stepper.currentStepNumber < this.stepNumber && this.stepNumber < this.$stepper.activeStepNumber; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StepCtrl.prototype, "hasOptional", {
+        get: function () { return Boolean(this.optional || this.hasError); },
+        enumerable: true,
+        configurable: true
+    });
+    StepCtrl.prototype.$onInit = function () {
+        if (this.$attrs.mdEditable === '') {
+            this.editable = true;
+        }
+    };
+    StepCtrl.prototype.$postLink = function () {
+        this.stepNumber = this.$stepper.$addStep(this);
+    };
+    Object.defineProperty(StepCtrl.prototype, "buttonClasses", {
+        get: function () {
+            return {
+                'md-active': this.isCurrent,
+                'md-completed': this.isCompleted && !this.isBetweenAC,
+                'md-error': this.hasError,
+                'md-stepper-optional': this.hasOptional,
+                'md-editable': this.isEditable,
+                'md-hoverable': !this.isEditing && (this.isActive || this.isEditable && this.isCompleted),
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    StepCtrl.prototype.activate = function () {
+        this.$stepper.goto(this.stepNumber);
+    };
+    StepCtrl.$inject = [
+        '$attrs'
+    ];
+    return StepCtrl;
 }());
 var StepperServiceFactory = ['$mdComponentRegistry',
     function ($mdComponentRegistry) {
@@ -159,30 +283,7 @@ var StepperServiceFactory = ['$mdComponentRegistry',
             return instance;
         };
     }];
-var StepCtrl = (function () {
-    /**
-     *
-     */
-    function StepCtrl($element, $compile, $scope) {
-        this.$element = $element;
-        this.$compile = $compile;
-        this.$scope = $scope;
-    }
-    StepCtrl.prototype.$postLink = function () {
-        this.stepNumber = this.$stepper.$addStep(this);
-    };
-    StepCtrl.prototype.isActive = function () {
-        var state = this.$stepper.isActiveStep(this);
-        return state;
-    };
-    StepCtrl.$inject = [
-        '$element',
-        '$compile',
-        '$scope'
-    ];
-    return StepCtrl;
-}());
-angular.module('mdSteppers', ['ngMaterial'])
+angular.module('mdSteppers', ['material.components.icon'])
     .factory('$mdStepper', StepperServiceFactory)
     .directive('mdStepper', function () {
     return {
@@ -207,7 +308,10 @@ angular.module('mdSteppers', ['ngMaterial'])
             transclude: true,
             scope: {
                 label: '@mdLabel',
-                optional: '@?mdOptional'
+                optional: '@?mdOptional',
+                editable: '<?mdEditable',
+                onActivate: '&?onActivate',
+                onDeactivate: '&?onDeactivate',
             },
             bindToController: true,
             controller: StepCtrl,
@@ -216,16 +320,16 @@ angular.module('mdSteppers', ['ngMaterial'])
                 function addOverlay() {
                     var hasOverlay = !!iElement.find('.md-step-body-overlay')[0];
                     if (!hasOverlay) {
-                        var overlay = angular.element("<div class=\"md-step-body-overlay\"></div>\n                            <div class=\"md-step-body-loading\">\n                                <md-progress-circular md-mode=\"indeterminate\"></md-progress-circular>\n                            </div>");
+                        var overlay = angular.element("\n                            <div class=\"md-step-body-overlay\"></div>\n                            <div class=\"md-step-body-loading\">\n                                <md-progress-circular md-mode=\"indeterminate\"></md-progress-circular>\n                            </div>\n                        ");
                         $compile(overlay)(scope);
-                        iElement.find('.md-steppers-scope').append(overlay);
+                        iElement.find('md-steppers-scope').append(overlay);
                     }
                 }
                 scope.$ctrl.$stepper = stepperCtrl;
                 scope.$watch(function () {
-                    return scope.$ctrl.isActive();
-                }, function (isActive) {
-                    if (isActive) {
+                    return scope.$ctrl.isCurrent;
+                }, function (isCurrent) {
+                    if (isCurrent) {
                         iElement.addClass('md-active');
                         addOverlay();
                     }
@@ -237,14 +341,26 @@ angular.module('mdSteppers', ['ngMaterial'])
             templateUrl: 'mdSteppers/mdStep.tpl.html'
         };
     }])
+    .directive('mdStepButton', function () {
+    return {
+        scope: {
+            $step: '<step',
+        },
+        replace: true,
+        templateUrl: 'mdSteppers/mdStepButton.tpl.html'
+    };
+})
     .config(['$mdIconProvider', function ($mdIconProvider) {
         $mdIconProvider.icon('steppers-check', 'mdSteppers/ic_check_24px.svg');
         $mdIconProvider.icon('steppers-warning', 'mdSteppers/ic_warning_24px.svg');
+        $mdIconProvider.icon('steppers-edit', 'mdSteppers/ic_edit_24px.svg');
     }])
     .run(["$templateCache", function ($templateCache) {
         $templateCache.put("mdSteppers/ic_check_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/>\r\n</svg>");
         $templateCache.put("mdSteppers/ic_warning_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z\"/>\r\n</svg>");
+        $templateCache.put("mdSteppers/ic_edit_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z\"/>\r\n</svg>");
     }]);
 
-angular.module("mdSteppers").run(["$templateCache", function($templateCache) {$templateCache.put("mdSteppers/mdStep.tpl.html","<div class=\"md-stepper\" ng-class=\"{ \'md-active\': $ctrl.isActive() }\">\r\n    <md-steppers-header class=\"md-steppers-header md-steppers-vertical\">\r\n        <button class=\"md-stepper-indicator\" ng-class=\"{\r\n                    \'md-active\': $ctrl.stepNumber === $ctrl.$stepper.currentStep,\r\n                    \'md-completed\': $ctrl.$stepper.isCompleted($ctrl.stepNumber),\r\n                    \'md-error\': $ctrl.hasError,\r\n                    \'md-stepper-optional\': $ctrl.optional || $ctrl.hasError\r\n                }\" ng-click=\"$ctrl.$stepper.goto($ctrl.stepNumber)\" ng-disabled=\"$ctrl.$stepper.linear || $ctrl.stepNumber === $ctrl.$stepper.currentStep\">\r\n                <div class=\"md-stepper-indicator-wrapper\">\r\n                    <div class=\"md-stepper-number\" ng-hide=\"$ctrl.hasError\">\r\n                    <span ng-if=\"!$ctrl.$stepper.isCompleted($ctrl.stepNumber)\">{{ ::$ctrl.stepNumber+1 }}</span>\r\n                        <md-icon md-svg-icon=\"steppers-check\" class=\"md-stepper-icon\" ng-if=\"$ctrl.$stepper.isCompleted($ctrl.stepNumber)\"></md-icon>\r\n                    </div>\r\n                    <div class=\"md-stepper-error-indicator\" ng-show=\"$ctrl.hasError\">\r\n                        <md-icon md-svg-icon=\"steppers-warning\"></md-icon>\r\n                    </div>\r\n\r\n                    <div class=\"md-stepper-title\">\r\n                        <span>{{ $ctrl.label }}</span>\r\n                        <small ng-if=\"$ctrl.optional && !$ctrl.hasError\">{{ $ctrl.optional }}</small>\r\n                        <small class=\"md-stepper-error-message\" ng-show=\"$ctrl.hasError\">\r\n                            {{ $ctrl.message }}\r\n                        </small>\r\n                    </div>\r\n                </div>\r\n                </button>\r\n        <div class=\"md-stepper-feedback-message\" ng-show=\"stepper.hasFeedback\">\r\n            {{stepper.feedbackMessage}}\r\n        </div>\r\n    </md-steppers-header>\r\n    <md-steppers-scope layout=\"column\" class=\"md-steppers-scope\" ng-if=\"$ctrl.isActive()\" ng-transclude></md-steppers-scope>\r\n</div>");
-$templateCache.put("mdSteppers/mdStepper.tpl.html","<div flex class=\"md-steppers\" ng-class=\"{ \r\n    \'md-steppers-linear\': stepper.linear, \r\n    \'md-steppers-alternative\': stepper.alternative,\r\n    \'md-steppers-vertical\': stepper.vertical,\r\n    \'md-steppers-mobile-step-text\': stepper.mobileStepText,\r\n    \'md-steppers-has-feedback\': stepper.hasFeedback\r\n    }\">\r\n    <div class=\"md-steppers-header-region\">\r\n        <md-steppers-header class=\"md-steppers-header md-steppers-horizontal md-whiteframe-1dp\">\r\n            <button class=\"md-stepper-indicator\" ng-repeat=\"(stepNumber, $step) in stepper.steps track by $index\" ng-class=\"{\r\n                \'md-active\': stepNumber === stepper.currentStep,\r\n                \'md-completed\': stepper.isCompleted(stepNumber),\r\n                \'md-error\': $step.hasError,\r\n                \'md-stepper-optional\': $step.optional || $step.hasError\r\n            }\" ng-click=\"stepper.goto(stepNumber)\" ng-disabled=\"stepper.linear || stepNumber === stepper.currentStep\">\r\n            <div class=\"md-stepper-indicator-wrapper\">\r\n                <div class=\"md-stepper-number\" ng-hide=\"$step.hasError\">\r\n                    <span ng-if=\"!stepper.isCompleted(stepNumber)\">{{ ::stepNumber+1 }}</span>\r\n                    <md-icon md-svg-icon=\"steppers-check\" class=\"md-stepper-icon\" ng-if=\"stepper.isCompleted(stepNumber)\"></md-icon>\r\n                </div>\r\n\r\n                <div class=\"md-stepper-error-indicator\" ng-show=\"$step.hasError\">\r\n                <md-icon md-svg-icon=\"steppers-warning\"></md-icon>\r\n                </div>\r\n                <div class=\"md-stepper-title\">\r\n                    <span>{{ $step.label }}</span>\r\n                    <small ng-if=\"$step.optional && !$step.hasError\">{{ $step.optional }}</small>\r\n                    <small class=\"md-stepper-error-message\" ng-show=\"$step.hasError\">\r\n                        {{ $step.message }}\r\n                    </small>\r\n                </div>\r\n            </div>\r\n            </button>\r\n           \r\n        </md-steppers-header>\r\n        <md-steppers-mobile-header class=\"md-steppers-mobile-header\">\r\n            <md-toolbar flex=\"none\" class=\"md-whiteframe-1dp\" style=\"background: #f6f6f6 !important; color: #202020 !important;\">\r\n                <div class=\"md-toolbar-tools\">\r\n                    <h3>\r\n                        <span>{{stepper.labelStep}} {{stepper.currentStep+1}} {{stepper.labelOf}} {{stepper.steps.length}}</span>\r\n                    </h3>\r\n                </div>\r\n            </md-toolbar>\r\n        </md-steppers-mobile-header>\r\n        <div class=\"md-stepper-feedback-message\" ng-show=\"stepper.hasFeedback\">\r\n            {{stepper.feedbackMessage}}\r\n        </div>\r\n    </div>\r\n    <md-steppers-content class=\"md-steppers-content\" ng-transclude></md-steppers-content>\r\n    <div class=\"md-steppers-overlay\"></div>\r\n</div>");}]);
+angular.module("mdSteppers").run(["$templateCache", function($templateCache) {$templateCache.put("mdSteppers/mdStep.tpl.html","<div class=\"md-stepper\" ng-class=\"{ \'md-active\'  : $ctrl.isCurrent }\">\n    <md-steppers-header class=\"md-steppers-header md-steppers-vertical\">\n        <md-step-button step=\"$ctrl\"></md-step-button>\n\n        <div class=\"md-stepper-feedback-message\" ng-show=\"$ctrl.$stepper.hasFeedback\">\n            {{$ctrl.$stepper.feedbackMessage}}\n        </div>\n    </md-steppers-header>\n    <md-steppers-scope layout=\"column\" class=\"md-steppers-scope\" ng-if=\"$ctrl.isCurrent\" ng-transclude></md-steppers-scope>\n</div>\n");
+$templateCache.put("mdSteppers/mdStepButton.tpl.html","<button\n    class=\"md-stepper-indicator\"\n    ng-class=\"$step.buttonClasses\"\n    ng-click=\"$step.activate()\"\n    ng-disabled=\"$step.isDisabled\"\n>\n    <div class=\"md-stepper-indicator-wrapper\">\n        <div class=\"md-stepper-number\" ng-hide=\"$step.hasError\">\n            <span ng-if=\"!$step.isCompleted || ($step.isCurrent && !$step.isEditing)\">{{ ::$step.stepNumber + 1 }}</span>\n            <md-icon\n                md-svg-icon=\"{{ $step.isEditing ? \'steppers-edit\' : \'steppers-check\' }}\"\n                class=\"md-stepper-icon\"\n                ng-if=\"$step.isCompleted && (!$step.isCurrent || $step.isEditing)\"\n            ></md-icon>\n        </div>\n\n        <div class=\"md-stepper-error-indicator\" ng-show=\"$step.hasError\">\n            <md-icon md-svg-icon=\"steppers-warning\"></md-icon>\n        </div>\n\n        <div class=\"md-stepper-title\">\n            <span>{{ $step.label }}</span>\n            <small ng-if=\"$step.optional && !$step.hasError\">{{ $step.optional }}</small>\n            <small class=\"md-stepper-error-message\" ng-show=\"$step.hasError\">\n                {{ $step.message }}\n            </small>\n        </div>\n    </div>\n</button>\n");
+$templateCache.put("mdSteppers/mdStepper.tpl.html","<div\n    flex\n    class=\"md-steppers\"\n    ng-class=\"stepper.stepperClasses\"\n>\n    <div class=\"md-steppers-header-region\">\n        <md-steppers-header class=\"md-steppers-header md-steppers-horizontal md-whiteframe-1dp\">\n            <md-step-button ng-repeat=\"$step in stepper.steps\" step=\"$step\"></md-step-button>\n        </md-steppers-header>\n\n        <md-steppers-mobile-header class=\"md-steppers-mobile-header\">\n            <md-toolbar flex=\"none\" class=\"md-whiteframe-1dp\" style=\"background: #f6f6f6 !important; color: #202020 !important;\">\n                <div class=\"md-toolbar-tools\">\n                    <h3>\n                        <span>{{stepper.labelStep}} {{stepper.currentStepNumber+1}} {{stepper.labelOf}} {{stepper.steps.length}}</span>\n                    </h3>\n                </div>\n            </md-toolbar>\n        </md-steppers-mobile-header>\n\n        <div class=\"md-stepper-feedback-message\" ng-show=\"stepper.hasFeedback\">\n            {{stepper.feedbackMessage}}\n        </div>\n    </div>\n    <md-steppers-content class=\"md-steppers-content\" ng-transclude></md-steppers-content>\n    <div class=\"md-steppers-overlay\"></div>\n</div>\n");}]);
