@@ -79,17 +79,11 @@ md-step-actions {
       -ms-flex-flow: column;
           flex-flow: column;
 }
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator.md-hoverable:not(.md-active):hover,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):not(.md-completed):hover,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator.md-editable.md-completed:hover {
+.md-steppers:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):hover {
   cursor: pointer;
 }
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator.md-hoverable:not(.md-active):hover,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):not(.md-completed):hover,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator.md-editable.md-completed:hover,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-indicator-wrapper,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):not(.md-completed):hover .md-stepper-indicator-wrapper,
-.md-steppers:not(.md-steppers-linear) .md-stepper-indicator.md-editable.md-completed:hover .md-stepper-indicator-wrapper {
+.md-steppers:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):hover,
+.md-steppers:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):hover .md-stepper-indicator-wrapper {
   background-color: #F6F6F6;
 }
 .md-steppers-header {
@@ -281,20 +275,15 @@ md-step-actions {
 .md-steppers-linear .md-stepper-indicator {
   cursor: default;
 }
-.md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover,
-.md-steppers-linear .md-stepper-indicator.md-editable.md-completed:not(.md-active):hover {
+.md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover {
   cursor: pointer;
 }
 .md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover,
-.md-steppers-linear .md-stepper-indicator.md-editable.md-completed:not(.md-active):hover,
-.md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-indicator-wrapper,
-.md-steppers-linear .md-stepper-indicator.md-editable.md-completed:not(.md-active):hover .md-stepper-indicator-wrapper {
+.md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-indicator-wrapper {
   background-color: #F6F6F6;
 }
 .md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-number:before,
-.md-steppers-linear .md-stepper-indicator.md-editable.md-completed:not(.md-active):hover .md-stepper-number:before,
-.md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-number:after,
-.md-steppers-linear .md-stepper-indicator.md-editable.md-completed:not(.md-active):hover .md-stepper-number:after {
+.md-steppers-linear .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-number:after {
   background-color: #F6F6F6;
 }
 .md-steppers-linear .md-stepper-title {
@@ -303,14 +292,11 @@ md-step-actions {
 .md-steppers-linear .md-stepper-title small:not(.md-stepper-error-message) {
   color: rgba(0, 0, 0, 0.26);
 }
-.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-indicator-wrapper,
-.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):not(.md-completed):hover .md-stepper-indicator-wrapper {
+.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):hover .md-stepper-indicator-wrapper {
   background: none;
 }
-.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-number:before,
-.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):not(.md-completed):hover .md-stepper-number:before,
-.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator.md-hoverable:not(.md-active):hover .md-stepper-number:after,
-.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):not(.md-completed):hover .md-stepper-number:after {
+.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):hover .md-stepper-number:before,
+.md-steppers-alternative:not(.md-steppers-linear) .md-stepper-indicator:not(.md-active):hover .md-stepper-number:after {
   background-color: #F6F6F6;
 }
 .md-steppers-alternative .md-steppers-horizontal .md-stepper-indicator {

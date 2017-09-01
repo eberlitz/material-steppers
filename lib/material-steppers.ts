@@ -257,7 +257,7 @@ class StepCtrl {
             'md-error'           : this.hasError,
             'md-stepper-optional': this.hasOptional,
             'md-editable'        : this.isEditable,
-            'md-hoverable'       : this.isActive,
+            'md-hoverable'       : !this.isEditing && (this.isActive || this.isEditable && this.isCompleted),
         };
     }
 
