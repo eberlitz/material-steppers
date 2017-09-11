@@ -250,7 +250,6 @@ class StepCtrl {
         if (this.onInitialized) {
             this.onInitialized();
         }
-        console.log(this);
     }
 
     $postLink() {
