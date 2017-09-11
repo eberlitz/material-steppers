@@ -1,6 +1,6 @@
 'use strict';
 
-var gulp = require('gulp'),
+const gulp = require('gulp'),
     rename = require('gulp-rename'),
     uglify = require('gulp-uglify'),
     ts = require('gulp-typescript'),
@@ -9,49 +9,33 @@ var gulp = require('gulp'),
     postcss = require('gulp-postcss'),
     cssnano = require('cssnano'),
     browserSync = require('browser-sync').create(),
-    templateCache = require('gulp-angular-templatecache'),
     concat = require('gulp-concat'),
-    orderedMergeStream = require('ordered-merge-stream');
+    merge2 = require('merge2'),
+    jsString = require('gulp-js-string');
 
-var tsProject = ts.createProject('tsconfig.json', {
-    noExternalResolve: true
-});
+const tsProject = ts.createProject('tsconfig.json');
 
-var production = true;
 
 gulp.task('default', ['serve']);
 gulp.task('build', ['js', 'css']);
 
 
-gulp.task('templates', function () {
-    return gulp.src('lib/**/*.tpl.html')
-        .pipe(templateCache('material-steppers-tpl.js', {
-            root: 'mdSteppers',
-            module: 'mdSteppers'
-        }))
-        // .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('demo'));
-});
-
 gulp.task('serve', ['build'], function (callback) {
-    production = false;
     browserSync.init({
-        server: {
-            baseDir: "./demo",
-            routes: {
-                "/lib": "mdSteppers"
-            }
-        },
+        server: ['demo', 'dist'],
         ui: false
     });
-    gulp.watch("lib/*.ts", ['js']);
-    gulp.watch("lib/*.html", ['js']);
-    gulp.watch("lib/*.less", ['css']);
-    gulp.watch("demo/*.html").on('change', browserSync.reload);
+
+    gulp.watch(["lib/**/*.ts", "lib/**/*.html", "lib/**/*.svg"], ['js']);
+    gulp.watch(["lib/**/*.less"], ['css']);
+
+    gulp.watch(["demo/**/*.html", "dist/**/*.js", "dist/**/*.css"])
+        .on('change', browserSync.reload);
 });
 
+
 gulp.task('css', function (callback) {
-    var stream = gulp.src('lib/*.less')
+    return gulp.src('lib/*.less')
         .pipe(less())
         .pipe(postcss([autoprefixer({
             browsers: [
@@ -67,29 +51,33 @@ gulp.task('css', function (callback) {
             ]
         })]))
         .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('demo'))
         .pipe(rename({ extname: '.min.css' }))
-        .pipe(gulp.dest('demo'))
         .pipe(postcss([cssnano({
             discardComments: { removeAll: true }
         })]))
         .pipe(gulp.dest('dist'));
-    return stream;
 });
 
 
-gulp.task('js', ['templates'], function (callback) {
-    var stream = gulp.src('lib/*.ts')
-        .pipe(ts(tsProject))
-        .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('demo'));
+gulp.task('js', function (callback) {
+    const str = (src, scope) => {
+        return gulp
+            .src(src)
+            .pipe(jsString((str, file, ...args) => [
+                `window.${scope} = window.${scope} || {};`,
+                `window.${scope}['${file.basename}'] = '${str}';`
+            ].join('\n')))
+            .pipe(concat(scope));
+    }
 
-    return orderedMergeStream([stream, gulp.src('demo/*-tpl.js')])
+    return merge2()
+        .add( str(['lib/*.html'], 'TEMPLATES') )
+        .add( str(['lib/icons/*.svg'], 'ICONS') )
+        .add( gulp.src('lib/*.ts').pipe(tsProject()) )
+
         .pipe(concat('material-steppers.js'))
-        .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('demo'))
+        .pipe(gulp.dest('dist/'))
         .pipe(rename({ extname: '.min.js' }))
-        .pipe(gulp.dest('demo'))
         .pipe(uglify())
         .pipe(gulp.dest('dist'));
 });

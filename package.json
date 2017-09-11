@@ -4,7 +4,10 @@
   "description": "Angular Steppers directive for Angular Material",
   "main": "dist/material-steppers.min.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "gulp",
+    "build": "gulp build",
+    "start": "npm run serve"
   },
   "repository": {
     "type": "git",
@@ -24,17 +27,23 @@
   },
   "homepage": "https://github.com/eberlitz/material-steppers#readme",
   "devDependencies": {
+    "@types/angular": "^1.5.23",
+    "@types/angular-material": "^1.1.54",
+    "@types/jquery": "^1.10.33",
     "autoprefixer": "^6.3.6",
     "browser-sync": "^2.12.7",
     "cssnano": "^3.5.2",
     "gulp": "^3.9.1",
-    "gulp-angular-templatecache": "^1.8.0",
     "gulp-concat": "^2.6.0",
+    "gulp-declare": "^0.3.0",
+    "gulp-js-string": "^1.0.0",
     "gulp-less": "^3.1.0",
     "gulp-postcss": "^6.1.1",
     "gulp-rename": "^1.2.2",
-    "gulp-typescript": "^2.13.4",
+    "gulp-typescript": "^3.2.2",
     "gulp-uglify": "^1.5.3",
-    "ordered-merge-stream": "^1.0.0"
-  }
+    "merge2": "^1.2.0",
+    "typescript": "^2.5.2"
+  },
+  "dependencies": {}
 }

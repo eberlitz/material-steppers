@@ -18,11 +18,14 @@ class StepperCtrl {
     /* End of bindings */
 
     public steps = [];
-    public currentStep = 0;
+    public currentStepNumber = 0;
+    public activeStepNumber = 0;
 
     private hasFeedback: boolean;
     private feedbackMessage: string;
     private registeredStepper;
+
+    public get currentStep(): StepCtrl { return this.steps[this.currentStepNumber]; }
 
     constructor(
         private $mdComponentRegistry,
@@ -61,7 +64,11 @@ class StepperCtrl {
      * @returns number - The step number.
      */
     $addStep(step: StepCtrl) {
-        return this.steps.push(step) - 1;
+        let number = this.steps.push(step) - 1;
+        if (number === 0 && step.onActivate) {
+            step.onActivate();
+        }
+        return number;
     }
 
     /**
@@ -73,10 +80,13 @@ class StepperCtrl {
      * @returns boolean - True if move and false if not move (e.g. On the last step)
      */
     public next() {
-        if (this.currentStep < this.steps.length) {
-            this.clearError();
-            this.currentStep++;
+        if (this.currentStepNumber < this.steps.length) {
+            this.completeStep();
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
+            this.currentStepNumber++;
+            this.activeStepNumber = this.currentStepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -89,10 +99,14 @@ class StepperCtrl {
      * @returns boolean - True if move and false if not move (e.g. On the first step)
      */
     public back() {
-        if (this.currentStep > 0) {
+        if (this.currentStepNumber > 0) {
             this.clearError();
-            this.currentStep--;
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
+            this.currentStepNumber--;
+            this.activeStepNumber = this.currentStepNumber;
+            this.currentStep.completed = false;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -105,10 +119,11 @@ class StepperCtrl {
      * @returns boolean - True if move and false if not move (e.g. On non-optional step)
      */
     public skip() {
-        let step = this.steps[this.currentStep];
-        if (step.optional) {
-            this.currentStep++;
+        if (!this.linear || this.currentStep.optional) {
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
+            this.currentStepNumber++;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -122,9 +137,8 @@ class StepperCtrl {
      * @param {string} message The error message
      */
     public error(message: string) {
-        let step = this.steps[this.currentStep];
-        step.hasError = true;
-        step.message = message;
+        this.currentStep.hasError = true;
+        this.currentStep.message = message;
         this.clearFeedback();
     }
 
@@ -133,8 +147,15 @@ class StepperCtrl {
      * title message element.
      */
     public clearError() {
-        let step = this.steps[this.currentStep];
-        step.hasError = false;
+        this.currentStep.hasError = false;
+    }
+
+    public completeStep() {
+        for (let stepNumber = this.currentStepNumber; stepNumber < this.steps.length; stepNumber++) {
+            this.steps[stepNumber].completed = false;
+        }
+        this.currentStep.hasError = false;
+        this.currentStep.completed = true;
     }
 
     /**
@@ -145,9 +166,11 @@ class StepperCtrl {
      * @returns boolean - True if move and false if not move (e.g. On id not found)
      */
     public goto(stepNumber: number) {
-        if (stepNumber < this.steps.length) {
-            this.currentStep = stepNumber;
+        if (0 <= stepNumber && stepNumber < this.steps.length) {
+            if (this.currentStep.onDeactivate) { this.currentStep.onDeactivate(); }
+            this.currentStepNumber = stepNumber;
             this.clearFeedback();
+            if (this.currentStep.onActivate) { this.currentStep.onActivate(); }
             return true;
         }
         return false;
@@ -170,15 +193,91 @@ class StepperCtrl {
         this.hasFeedback = false;
     }
 
-
-    isCompleted(stepNumber: number) {
-        return this.linear && stepNumber < this.currentStep;
-    };
-
-    isActiveStep(step: StepCtrl) {
-        return this.steps.indexOf(step) === this.currentStep;
+    public get stepperClasses() {
+        return {
+            'md-steppers-linear'          : this.linear,
+            'md-steppers-alternative'     : this.alternative,
+            'md-steppers-vertical'        : this.vertical,
+            'md-steppers-mobile-step-text': this.mobileStepText,
+            'md-steppers-has-feedback'    : this.hasFeedback
+        };
     }
 }
+
+
+class StepCtrl {
+
+    public static $inject = [
+        '$attrs'
+    ];
+
+    /* Bindings */
+
+    public label   : string;
+    public optional: string;
+    public editable: boolean;
+    public onActivate;
+    public onDeactivate;
+    public onClick;
+    public onInitialized;
+
+    /* End of bindings */
+
+    public completed : boolean = false;
+    public stepNumber: number;
+    public hasError  : boolean = false;
+    public message   : string;
+    public $stepper  : StepperCtrl;
+
+    public get isCurrent()      :boolean { return this.stepNumber === this.$stepper.currentStepNumber; }
+    public get isDisabled()     :boolean { return this.$stepper.linear && !(this.isCompleted && this.isEditable) && !this.isActive && !this.isClickable || this.isCurrent; }
+    public get isCompleted()    :boolean { return this.completed; }
+    public get isActive()       :boolean { return this.stepNumber === this.$stepper.activeStepNumber; }
+    public get isEditable()     :boolean { return this.editable; }
+    public get isEditing()      :boolean { return this.isCompleted && this.isEditable && this.isCurrent; }
+    public get isBetweenAC()    :boolean { return this.$stepper.currentStepNumber < this.stepNumber && this.stepNumber < this.$stepper.activeStepNumber; }
+    public get isClickable()    :boolean { return Boolean(this.onClick); }
+    public get hasOptional()    :boolean { return Boolean(this.optional || this.hasError); }
+
+    constructor(
+        private $attrs
+    ) { }
+
+    $onInit() {
+        if (this.$attrs.mdEditable === '') {
+            this.editable = true;
+        }
+        if (this.onInitialized) {
+            this.onInitialized();
+        }
+    }
+
+    $postLink() {
+        this.stepNumber = this.$stepper.$addStep(this);
+    }
+
+    public get buttonClasses() {
+        return {
+            'md-active'          : this.isCurrent,
+            'md-completed'       : this.isCompleted && !this.isBetweenAC,
+            'md-error'           : this.hasError,
+            'md-stepper-optional': this.hasOptional,
+            'md-editable'        : this.isEditable,
+            'md-hoverable'       : !this.isEditing && (this.isActive || this.isEditable && this.isCompleted || this.isClickable),
+        };
+    }
+
+    public activate() {
+        let result = true;
+        if (this.isClickable) {
+            result = this.onClick();
+        }
+        if (result) {
+            this.$stepper.goto(this.stepNumber);
+        }
+    }
+}
+
 
 interface StepperService {
     (handle: string): StepperCtrl;
@@ -198,45 +297,7 @@ let StepperServiceFactory = ['$mdComponentRegistry',
     }];
 
 
-class StepCtrl {
-
-    public static $inject = [
-        '$element',
-        '$compile',
-        '$scope'
-    ];
-
-    /* Bindings */
-
-    public label: string;
-    public optional: string;
-
-    /* End of bindings */
-
-    public stepNumber: number;
-
-    public $stepper: StepperCtrl;
-
-    /**
-     *
-     */
-    constructor(
-        private $element,
-        private $compile: ng.ICompileService,
-        private $scope: ng.IScope
-    ) { }
-
-    $postLink() {
-        this.stepNumber = this.$stepper.$addStep(this);
-    }
-
-    isActive() {
-        let state = this.$stepper.isActiveStep(this);
-        return state;
-    }
-}
-
-angular.module('mdSteppers', ['ngMaterial'])
+angular.module('mdSteppers', ['material.components.icon'])
     .factory('$mdStepper', StepperServiceFactory)
 
     .directive('mdStepper', () => {
@@ -254,9 +315,6 @@ angular.module('mdSteppers', ['ngMaterial'])
             controller: StepperCtrl,
             controllerAs: 'stepper',
             templateUrl: 'mdSteppers/mdStepper.tpl.html'
-            // link: function (scope, element, attrs) {
-            //     scope.stepper.mobileStepText = !!attrs.$attr['mdMobileStepText'];
-            // }
         };
     })
     .directive('mdStep', ['$compile', ($compile) => {
@@ -265,7 +323,12 @@ angular.module('mdSteppers', ['ngMaterial'])
             transclude: true,
             scope: {
                 label: '@mdLabel',
-                optional: '@?mdOptional'
+                optional: '@?mdOptional',
+                editable: '<?mdEditable',
+                onActivate: '&?onActivate',
+                onDeactivate: '&?onDeactivate',
+                onClick: '&?onClick',
+                onInitialized: '&?onInitialized',
             },
             bindToController: true,
             controller: StepCtrl,
@@ -274,20 +337,22 @@ angular.module('mdSteppers', ['ngMaterial'])
                 function addOverlay() {
                     let hasOverlay = !!iElement.find('.md-step-body-overlay')[0];
                     if (!hasOverlay) {
-                        let overlay = angular.element(`<div class="md-step-body-overlay"></div>
+                        let overlay = angular.element(`
+                            <div class="md-step-body-overlay"></div>
                             <div class="md-step-body-loading">
                                 <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-                            </div>`);
+                            </div>
+                        `);
                         $compile(overlay)(scope);
-                        iElement.find('.md-steppers-scope').append(overlay);
+                        iElement.find('md-steppers-scope').append(overlay);
                     }
                 }
 
                 scope.$ctrl.$stepper = stepperCtrl;
                 scope.$watch(function () {
-                    return scope.$ctrl.isActive();
-                }, function (isActive) {
-                    if (isActive) {
+                    return scope.$ctrl.isCurrent;
+                }, function (isCurrent) {
+                    if (isCurrent) {
                         iElement.addClass('md-active');
                         addOverlay();
                     } else {
@@ -298,13 +363,31 @@ angular.module('mdSteppers', ['ngMaterial'])
             templateUrl: 'mdSteppers/mdStep.tpl.html'
         };
     }])
+    .directive('mdStepButton', () => {
+        return {
+            scope: {
+                $step: '<step',
+            },
+            replace: true,
+            templateUrl: 'mdSteppers/mdStepButton.tpl.html'
+        };
+    })
 
+    // template
+    .run(["$templateCache", function ($templateCache) {
+        $templateCache.put('mdSteppers/mdStep.tpl.html', TEMPLATES['mdStep.tpl.html']);
+        $templateCache.put('mdSteppers/mdStepButton.tpl.html', TEMPLATES['mdStepButton.tpl.html']);
+        $templateCache.put('mdSteppers/mdStepper.tpl.html', TEMPLATES['mdStepper.tpl.html']);
+    }])
+
+    // icons
     .config(['$mdIconProvider', ($mdIconProvider) => {
         $mdIconProvider.icon('steppers-check', 'mdSteppers/ic_check_24px.svg');
         $mdIconProvider.icon('steppers-warning', 'mdSteppers/ic_warning_24px.svg');
+        $mdIconProvider.icon('steppers-edit', 'mdSteppers/ic_edit_24px.svg');
     }])
     .run(["$templateCache", function ($templateCache) {
-        $templateCache.put("mdSteppers/ic_check_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z\"/>\r\n</svg>");
-        $templateCache.put("mdSteppers/ic_warning_24px.svg", "<svg height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\">\r\n    <path d=\"M0 0h24v24H0z\" fill=\"none\"/>\r\n    <path d=\"M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z\"/>\r\n</svg>");
+        $templateCache.put("mdSteppers/ic_check_24px.svg", ICONS['check.svg']);
+        $templateCache.put("mdSteppers/ic_warning_24px.svg", ICONS['warning.svg']);
+        $templateCache.put("mdSteppers/ic_edit_24px.svg", ICONS['edit.svg']);
     }]);
-
